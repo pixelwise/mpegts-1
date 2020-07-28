@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "mpegts_demuxer.h"
+#include <mpegts/mpegts_demuxer.h>
 
 //AAC (ADTS) audio
 #define TYPE_AUDIO 0x0f

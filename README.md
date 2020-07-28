@@ -98,7 +98,7 @@ Demuxer ->
 
 ```cpp
 
-#include "mpegts_demuxer.h"
+#include <mpegts/mpegts_demuxer.h>
 
 //Callback where the demuxed data ends up
 void dmxOutput(EsFrame *pEs) {
@@ -130,7 +130,7 @@ Muxer ->
  
 ```cpp
 
-#include "mpegts_muxer.h"
+#include <mpegts/mpegts_muxer.h>
 
 //AAC audio
 #define TYPE_AUDIO 0x0f

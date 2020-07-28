@@ -8,7 +8,7 @@
 #include <thread>
 #include <functional>
 #include "kissnet/kissnet.hpp"
-#include "mpegts_muxer.h"
+#include <mpegts/mpegts_muxer.h>
 
 //If defined save TS data to file
 #define SAVE_TO_FILE

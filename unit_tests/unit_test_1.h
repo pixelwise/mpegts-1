@@ -6,8 +6,8 @@
 #define MPEGTS_UNIT_TEST_1_H
 
 #include <iostream>
-#include "mpegts_demuxer.h"
-#include "mpegts_muxer.h"
+#include <mpegts/mpegts_demuxer.h>
+#include <mpegts/mpegts_muxer.h>
 
 class UnitTest1 {
 public:

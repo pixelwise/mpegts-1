@@ -1,33 +1,40 @@
 cmake_minimum_required(VERSION 3.10)
-project(mpegts)
+project (mpegts)
+
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-#Macro for printing all CMake variables
-macro(print_all_variables)
-    message(STATUS "print_all_variables------------------------------------------{")
-    get_cmake_property(_variableNames VARIABLES)
-    foreach (_variableName ${_variableNames})
-        message(STATUS "${_variableName}=${${_variableName}}")
-    endforeach()
-    message(STATUS "print_all_variables------------------------------------------}")
-endmacro()
+add_library(
+    mpegts
+    mpegts/common.cpp
+    mpegts/simple_buffer.cpp 
+    mpegts/mpegts_muxer.cpp 
+    mpegts/mpegts_demuxer.cpp 
+    mpegts/ts_packet.cpp 
+    mpegts/crc.cpp 
+)
 
-find_package (Threads REQUIRED)
+target_include_directories(
+    mpegts
+    INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+add_executable(
+    mpegts_unit_test
+    unit_tests/unit_test_1.cpp
+    unit_tests/unit_test_2.cpp
+    unit_tests/unit_test_3.cpp
+    unit_tests/unit_test_4.cpp
+    unit_tests/unit_test_5.cpp
+    unit_tests/unit_test_6.cpp
+    unit_tests.cpp
+)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mpegts/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/)
+target_link_libraries(
+    mpegts_unit_test
+    mpegts
+)
 
-file(GLOB libfiles ${CMAKE_CURRENT_SOURCE_DIR}/mpegts/*.cpp)
-add_library(mpegts STATIC ${libfiles})
-
-add_executable(mpeg_ts_dmx_tests ${CMAKE_CURRENT_SOURCE_DIR}/main_dmx.cpp)
-target_link_libraries(mpeg_ts_dmx_tests mpegts Threads::Threads)
-
-add_executable(mpeg_ts_mx_tests ${CMAKE_CURRENT_SOURCE_DIR}/main_mx.cpp)
-target_link_libraries(mpeg_ts_mx_tests mpegts Threads::Threads)
-
-file(GLOB unit_tests_sources ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests/*.cpp)
-add_executable(mpeg_ts_unit_tests ${unit_tests_sources} ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests.cpp)
-target_link_libraries(mpeg_ts_unit_tests mpegts Threads::Threads)
+#set_target_properties(mpegts_unit_test PROPERTIES EXCLUDE_FROM_ALL TRUE)

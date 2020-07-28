@@ -3,12 +3,12 @@
 //
 
 #include <iostream>
-#include "unit_test_1.h"
-#include "unit_test_2.h"
-#include "unit_test_3.h"
-#include "unit_test_4.h"
-#include "unit_test_5.h"
-#include "unit_test_6.h"
+#include "unit_tests/unit_test_1.h"
+#include "unit_tests/unit_test_2.h"
+#include "unit_tests/unit_test_3.h"
+#include "unit_tests/unit_test_4.h"
+#include "unit_tests/unit_test_5.h"
+#include "unit_tests/unit_test_6.h"
 
 int main(int argc, char *argv[]) {
     std::cout << "Running all unit tests." << std::endl;
