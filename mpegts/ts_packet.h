@@ -32,11 +32,11 @@ public:
     uint8_t mRandomAccess;
     uint8_t mStreamType;
     uint8_t mStreamId;
+    bool mCompleted;
+    bool mBroken;
     uint16_t mPid;
     uint16_t mExpectedPesPacketLength;
     uint16_t mExpectedPayloadLength;
-    bool mCompleted;
-    bool mBroken;
 };
 
 class TsHeader {
