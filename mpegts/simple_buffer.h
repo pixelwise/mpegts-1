@@ -10,9 +10,8 @@
 class SimpleBuffer
 {
 public:
-    SimpleBuffer();
-    SimpleBuffer(int32_t size, int8_t value);
-    virtual ~SimpleBuffer();
+    SimpleBuffer(int32_t size = 0, int8_t value = 0);
+    ~SimpleBuffer();
 
 public:
     void write1Byte(int8_t val);
@@ -39,6 +38,9 @@ public:
     void setData(int pos, const uint8_t* data, int len);
 
 private:
+    bool read_to_host(char* out, size_t n);
+    bool read_raw(char* out, size_t n);
+    void write_raw(const char* p, size_t n);
     std::vector<uint8_t> mData;
     int mPos;
 };

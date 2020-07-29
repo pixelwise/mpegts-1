@@ -27,7 +27,7 @@ uint8_t MpegTsDemuxer::decode(SimpleBuffer &rIn) {
             if (lTsHeader.mAdaptationFieldControl == MpegTsAdaptationFieldType::mPayloadOnly ||
                 lTsHeader.mAdaptationFieldControl == MpegTsAdaptationFieldType::mPayloadAdaptionBoth) {
                 if (lTsHeader.mPayloadUnitStartIndicator == 0x01) {
-                    uint8_t lPointField = rIn.read1Byte();
+                    /*uint8_t lPointField =*/ rIn.read1Byte();
                 }
 
                 mPatHeader.decode(rIn);

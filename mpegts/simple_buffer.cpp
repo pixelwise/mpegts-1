@@ -2,15 +2,16 @@
 #include <assert.h>
 #include <iterator>
 
-SimpleBuffer::SimpleBuffer()
-    : mPos(0)
+static void swap_endian(char* out, size_t n)
 {
+    for (size_t i = 0; i < n / 2; ++i)
+        std::swap(out[i], out[n - i - 1]);
 }
 
 SimpleBuffer::SimpleBuffer(int32_t size, int8_t value)
-    : mPos(0)
+    : mData(size, value)
+    , mPos(0)
 {
-    mData = std::vector<uint8_t>(size, value);
 }
 
 SimpleBuffer::~SimpleBuffer()
@@ -19,43 +20,44 @@ SimpleBuffer::~SimpleBuffer()
 
 void SimpleBuffer::write1Byte(int8_t val)
 {
-    mData.push_back(val);
+    char *p = (char *)&val;
+    swap_endian(p, sizeof(val));
+    write_raw(p, sizeof(val));
 }
 
 void SimpleBuffer::write2Bytes(int16_t val)
 {
     char *p = (char *)&val;
-
-    for (int i = 1; i >= 0; --i) {
-        mData.push_back(p[i]);
-    }
+    swap_endian(p, sizeof(val));
+    write_raw(p, sizeof(val));
 }
 
 void SimpleBuffer::write3Bytes(int32_t val)
 {
     char *p = (char *)&val;
-
-    for (int i = 2; i >= 0; --i) {
-        mData.push_back(p[i]);
-    }
+    swap_endian(p, sizeof(val));
+    write_raw(p + 1, 3);
 }
 
 void SimpleBuffer::write4Bytes(int32_t val)
 {
     char *p = (char *)&val;
-
-    for (int i = 3; i >= 0; --i) {
-        mData.push_back(p[i]);
-    }
+    swap_endian(p, sizeof(val));
+    write_raw(p, sizeof(val));
 }
 
 void SimpleBuffer::write8Bytes(int64_t val)
 {
     char *p = (char *)&val;
+    swap_endian(p, sizeof(val));
+    write_raw(p, sizeof(val));
+}
 
-    for (int i = 7; i >= 0; --i) {
-        mData.push_back(p[i]);
-    }
+void SimpleBuffer::write_raw(const char* p, size_t n)
+{
+    mData.resize(mData.size() + n);
+    auto out = mData.data() + mData.size() - n;
+    std::copy(p, p + n, out);
 }
 
 void SimpleBuffer::append(const uint8_t* bytes, int size)
@@ -72,82 +74,80 @@ void SimpleBuffer::append(const uint8_t* bytes, int size)
 
 int8_t SimpleBuffer::read1Byte()
 {
-    assert(require(1));
-
-    int8_t val = mData.at(0 + mPos);
-    mPos++;
-
+    int8_t val = 0;
+    assert(require(sizeof(val)));
+    read_to_host((char*)&val, sizeof(val));
     return val;
 }
 
 int16_t SimpleBuffer::read2Bytes()
 {
-    assert(require(2));
-
     int16_t val = 0;
-    char *p = (char *)&val;
-
-    for (int i = 1; i >= 0; --i) {
-        p[i] = mData.at(0 + mPos);
-        mPos++;
-    }
-
+    assert(require(sizeof(val)));
+    read_to_host((char*)&val, sizeof(val));
     return val;
 }
 
 int32_t SimpleBuffer::read3Bytes()
 {
     assert(require(3));
-
     int32_t val = 0;
     char *p = (char *)&val;
-
-    for (int i = 2; i >= 0; --i) {
-        p[i] = mData.at(0 + mPos);
-        mPos++;
-    }
-
+    read_raw(p + 1, 3);
+    swap_endian(p, 4);
     return val;
 }
 
 int32_t SimpleBuffer::read4Bytes()
 {
-    assert(require(4));
-
     int32_t val = 0;
-    char *p = (char *)&val;
-
-    for (int i = 3; i >= 0; --i) {
-        p[i] = mData.at(0 + mPos);
-        mPos++;
-    }
-
+    assert(require(sizeof(val)));
+    read_to_host((char*)&val, sizeof(val));
     return val;
 }
 
 int64_t SimpleBuffer::read8Bytes()
 {
-    assert(require(8));
-
     int64_t val = 0;
-    char *p = (char *)&val;
-
-    for (int i = 7; i >= 0; --i) {
-        p[i] = mData.at(0 + mPos);
-        mPos++;
-    }
-
+    assert(require(sizeof(val)));
+    read_to_host((char*)&val, sizeof(val));
     return val;
 }
 
 std::string SimpleBuffer::readString(int len)
 {
     assert(require(len));
-
-    std::string val(*(char*)&mData[0] + mPos, len);
-    mPos += len;
-
+    std::string val;
+    val.resize(len);
+    read_raw(val.data(), len);
     return val;
+}
+
+bool SimpleBuffer::read_to_host(char* out, size_t n)
+{
+    if (read_raw(out, n))
+    {
+        swap_endian(out, n);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool SimpleBuffer::read_raw(char* out, size_t n)
+{
+    if (size() - pos() >= n)
+    {
+        std::copy(mData.data() + mPos, mData.data() + mPos + n, out);
+        mPos += n;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void SimpleBuffer::skip(int size)
